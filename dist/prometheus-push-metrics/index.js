@@ -32,7 +32,19 @@ const util_1 = __nccwpck_require__(669);
 const util_2 = __nccwpck_require__(24);
 async function run() {
     try {
-        core.info(`Executing...`);
+        const name = core.getInput('metric_name');
+        const value = core.getInput('metric_value');
+        const metricStateName = `metrics_value_${name}`;
+        core.saveState(metricStateName, { value: value, timestamp: Date.now() });
+        const existingNames = core.getState('metrics_names');
+        let parsedNames;
+        if (existingNames) {
+            parsedNames = JSON.parse(existingNames);
+        }
+        else {
+            parsedNames = [metricStateName];
+        }
+        core.saveState('metrics_names', parsedNames);
     }
     catch (err) {
         core.debug(util_1.inspect(err));
@@ -45,6 +57,16 @@ async function run() {
 async function cleanup() {
     try {
         core.info(`Cleanup running...`);
+        const savedMetricsNames = core.getState('metrics_names');
+        core.startGroup('metrics');
+        core.info(savedMetricsNames);
+        if (savedMetricsNames) {
+            const metricNames = JSON.parse(savedMetricsNames);
+            metricNames.forEach(name => {
+                core.info(`${name} - ${core.getState(name)}`);
+            });
+        }
+        core.endGroup();
     }
     catch (err) {
         core.debug(util_1.inspect(err));
