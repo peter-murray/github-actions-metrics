@@ -11,8 +11,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Run
+      - name: Run One
         uses: ./
+        with:
+          metric_name: tests
+          metric_value: 100
+
+      - name: Run Two
+        uses: ./
+        with:
+          metric_name: integrations
+          metric_value: 5
 
       - name: Complete
         run: echo "test is complete."
