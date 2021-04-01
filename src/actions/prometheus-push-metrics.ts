@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import { inspect } from 'util';
-import {IS_POST} from '../util';
+import {isPostExecution, setExecutionComplete} from '../util';
 
 async function run(): Promise<void> {
   try {
@@ -8,6 +8,8 @@ async function run(): Promise<void> {
   } catch(err) {
     core.debug(inspect(err))
     core.setFailed(err);
+  } finally {
+    setExecutionComplete();
   }
 }
 
@@ -20,7 +22,7 @@ async function cleanup(): Promise<void> {
   }
 }
 
-if (!IS_POST) {
+if (!isPostExecution()) {
   run()
 }
 else {

@@ -38,6 +38,9 @@ async function run() {
         core.debug(util_1.inspect(err));
         core.setFailed(err);
     }
+    finally {
+        util_2.setExecutionComplete();
+    }
 }
 async function cleanup() {
     try {
@@ -48,7 +51,7 @@ async function cleanup() {
         core.warning(err);
     }
 }
-if (!util_2.IS_POST) {
+if (!util_2.isPostExecution()) {
     run();
 }
 else {
@@ -83,10 +86,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.repositoryBranchExists = exports.repositoryExists = exports.getRequiredInput = exports.getRepository = exports.getGitHubToken = exports.getOctokit = exports.IS_POST = void 0;
+exports.repositoryBranchExists = exports.repositoryExists = exports.getRequiredInput = exports.getRepository = exports.getGitHubToken = exports.getOctokit = exports.setExecutionComplete = exports.isPostExecution = void 0;
 const rest_1 = __nccwpck_require__(375);
 const core = __importStar(__nccwpck_require__(186));
-exports.IS_POST = !!process.env['STATE_isPost'];
+function isPostExecution() {
+    return !!core.getState('isPost');
+}
+exports.isPostExecution = isPostExecution;
+function setExecutionComplete() {
+    core.saveState('isPost', true);
+}
+exports.setExecutionComplete = setExecutionComplete;
 function getOctokit(token) {
     let octokitToken;
     if (!token) {

@@ -6,7 +6,13 @@ export type Repository = {
   repo: string,
 }
 
-export const IS_POST = !!process.env['STATE_isPost'];
+export function isPostExecution() {
+  return !!core.getState('isPost');
+}
+
+export function setExecutionComplete() {
+  core.saveState('isPost', true);
+}
 
 export function getOctokit(token?: string): Octokit {
   let octokitToken: string;
