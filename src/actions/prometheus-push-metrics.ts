@@ -1,24 +1,13 @@
 import * as core from '@actions/core';
 import { inspect } from 'util';
-import {isPostExecution, setExecutionComplete} from '../util';
+import { isPostExecution, setExecutionComplete } from '../util';
 
 async function run(): Promise<void> {
   try {
     const name = core.getInput('metric_name');
     const value = core.getInput('metric_value');
 
-    const metricStateName = `metrics_value_${name}`;
-    core.saveState(metricStateName, {value: value, timestamp: Date.now()});
-
-    const existingNames: string = core.getState('metrics_names');
-    let parsedNames: string[];
-    if (existingNames) {
-      parsedNames = JSON.parse(existingNames);
-    } else {
-      parsedNames = [metricStateName];
-    }
-    core.saveState('metrics_names', parsedNames);
-
+    core.saveState('metric', {name: name, value: value, timestamp: Date.now()});
   } catch(err) {
     core.debug(inspect(err))
     core.setFailed(err);
@@ -31,18 +20,13 @@ async function cleanup(): Promise<void> {
   try {
     core.info(`Cleanup running...`);
 
-    const savedMetricsNames = core.getState('metrics_names');
+    core.startGroup('environment');
+    core.info(JSON.stringify(process.env, null, 2));
+    core.endGroup();
+
     core.startGroup('metrics');
-    core.info(savedMetricsNames);
-
-    if (savedMetricsNames) {
-      const metricNames: string[] = JSON.parse(savedMetricsNames);
-
-      metricNames.forEach(name => {
-        core.info(`${name} - ${core.getState(name)}`);
-      });
-    }
-
+    const metric = JSON.parse(core.getState('metric'));
+    core.info(`${metric.name} - ${JSON.stringify(metric)}`);
     core.endGroup();
   } catch(err) {
     core.debug(inspect(err))

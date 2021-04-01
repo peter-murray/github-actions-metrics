@@ -34,17 +34,7 @@ async function run() {
     try {
         const name = core.getInput('metric_name');
         const value = core.getInput('metric_value');
-        const metricStateName = `metrics_value_${name}`;
-        core.saveState(metricStateName, { value: value, timestamp: Date.now() });
-        const existingNames = core.getState('metrics_names');
-        let parsedNames;
-        if (existingNames) {
-            parsedNames = JSON.parse(existingNames);
-        }
-        else {
-            parsedNames = [metricStateName];
-        }
-        core.saveState('metrics_names', parsedNames);
+        core.saveState('metric', { name: name, value: value, timestamp: Date.now() });
     }
     catch (err) {
         core.debug(util_1.inspect(err));
@@ -57,15 +47,12 @@ async function run() {
 async function cleanup() {
     try {
         core.info(`Cleanup running...`);
-        const savedMetricsNames = core.getState('metrics_names');
+        core.startGroup('environment');
+        core.info(JSON.stringify(process.env, null, 2));
+        core.endGroup();
         core.startGroup('metrics');
-        core.info(savedMetricsNames);
-        if (savedMetricsNames) {
-            const metricNames = JSON.parse(savedMetricsNames);
-            metricNames.forEach(name => {
-                core.info(`${name} - ${core.getState(name)}`);
-            });
-        }
+        const metric = JSON.parse(core.getState('metric'));
+        core.info(`${metric.name} - ${JSON.stringify(metric)}`);
         core.endGroup();
     }
     catch (err) {
