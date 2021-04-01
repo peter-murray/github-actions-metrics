@@ -1,0 +1,16 @@
+name: 'GitHub Actions Metrics'
+description: Generates metrics for actions workflows.
+author: 'Peter Murray'
+
+inputs:
+  github_token:
+    description: The GitHub token to use to validate the provided data
+    default: ${{ github.token }}
+
+outputs:
+  # template_repository_full_name:
+  #   description: The full name of the template repository
+
+runs:
+  using: node12
+  main: './dist/prometheus-push-metrics/index.js'
